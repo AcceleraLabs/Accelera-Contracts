@@ -152,11 +152,11 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     // size is length of word
     function randomString(uint size) internal returns(string memory){
         bytes memory randomWord=new bytes(size);
-        // since we have 26 letters
+        // since we have 46 letters
         bytes memory chars = new bytes(46);
         chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890123456789";
         for (uint i=0;i<size;i++){
-            uint randomNumber=random(26);
+            uint randomNumber=random(46);
             // Index access for string is not possible
             randomWord[i]=chars[randomNumber];
         }
