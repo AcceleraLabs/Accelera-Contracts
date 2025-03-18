@@ -40,36 +40,41 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
         Ownable(initialOwner_)
     {}
 
-    function useReferralCode ( address receiver, string memory code_) internal {
-        if ( bytes(code_).length != 0 ) {
-            if ( bytes(addressToCodeUsed[receiver]).length == 0) {
-                if ( referralCodeToOwner[code_] != address(0) ) {
-                    addressToCodeUsed[receiver] = code_;
-                    emit ReferralCodeUsed( receiver, code_ );
-                } else {
-                    revert ReferralCodeDoesNotExist();
-                }
-            }
-        }
-    }
+    function depositWithReferral(uint256 assets, address receiver, string memory code_) public returns (uint256) {
 
-    function depositWithReferral(uint256 assets, address receiver, string memory code_) public virtual returns (uint256) {
-
-        useReferralCode ( receiver, code_);
+        useReferralCode ( _msgSender(), code_);
 
         uint256 shares = deposit(assets, receiver);
 
         return shares;
     }
 
+    function createReferralCode() external {
+        if (!referralCodeCreationEnabled) revert ReferralCodeCreationDisabled();
+
+        address user_ = _msgSender();
+        string memory code_ = randomString(6);
+
+        if( referralCodeToOwner[code_] != address(0) ) revert ReferralCodeAlreadyUsed();
+        
+        if ( bytes(ownerToReferralCode[user_]).length != 0 ) revert AddressAlreadyHasReferralCode();
+        
+        referralCodeToOwner[code_] = user_;
+        ownerToReferralCode[user_] = code_;
+
+        emit ReferralCodeCreated(user_, code_);
+    }
+
+    function useReferralCode(string memory code_) public {
+        useReferralCode ( _msgSender(), code_);
+    }
+
+    /* OVERRIDEN FUNCTIONS */
+
     function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal override {
         
         if (!depositsEnabled) {
             revert DepositsDisabled();
-        }
-
-        if (referralCodeMandatory && bytes(addressToCodeUsed[receiver]).length == 0) {
-            revert ReferralCodeMandatory();
         }
 
         super._deposit(caller, receiver, assets, shares);
@@ -93,22 +98,7 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
         super._update( from, to, value);
     }
 
-    function createReferralCode() external {
-
-        if (!referralCodeCreationEnabled) revert ReferralCodeCreationDisabled();
-
-        address user_ = _msgSender();
-        string memory code_ = randomString(6);
-
-        if( referralCodeToOwner[code_] != address(0) ) revert ReferralCodeAlreadyUsed();
-        
-        if ( bytes(ownerToReferralCode[user_]).length != 0 ) revert AddressAlreadyHasReferralCode();
-        
-        referralCodeToOwner[code_] = user_;
-        ownerToReferralCode[user_] = code_;
-
-        emit ReferralCodeCreated(user_, code_);
-    }
+    /* OWNER FUNCTIONS */
 
     function createReferralCodeOwner( address user_, string memory code_ ) external onlyOwner {
 
@@ -142,6 +132,21 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     function setReferralCodeMandatory(bool referralCodeMandatory_) external onlyOwner {
         referralCodeMandatory = referralCodeMandatory_;
         emit ReferralCodeMandatoryEnabled(referralCodeMandatory_);
+    }
+
+    /* INTERNAL FUNCTIONS */
+
+    function useReferralCode ( address receiver, string memory code_) internal {
+        if ( bytes(code_).length != 0 ) {
+            if ( bytes(addressToCodeUsed[receiver]).length == 0) {
+                if ( referralCodeToOwner[code_] != address(0) ) {
+                    addressToCodeUsed[receiver] = code_;
+                    emit ReferralCodeUsed( receiver, code_ );
+                } else {
+                    revert ReferralCodeDoesNotExist();
+                }
+            }
+        }
     }
 
     // Just used for the generation of the random code for referrals
