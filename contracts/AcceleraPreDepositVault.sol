@@ -86,11 +86,11 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
         super._withdraw(caller, receiver, owner, assets, shares);
     }
 
-    function _transfer(address from, address to, uint256 value) internal override {
+    function _update(address from, address to, uint256 value) internal override {
         if (referralCodeMandatory && bytes(addressToCodeUsed[to]).length == 0) {
             revert ReferralCodeMandatory();
         }
-        super._transfer( from, to, value);
+        super._update( from, to, value);
     }
 
     function createReferralCode() external {
