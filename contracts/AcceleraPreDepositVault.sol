@@ -38,7 +38,10 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
         ERC4626(asset_)
         ERC20(name_, symbol_)
         Ownable(initialOwner_)
-    {}
+    {
+        depositsEnabled = true;
+        withdrawalsEnabled = true;
+    }
 
     function depositWithReferral(uint256 assets, address receiver, string memory code_) public returns (uint256) {
 
