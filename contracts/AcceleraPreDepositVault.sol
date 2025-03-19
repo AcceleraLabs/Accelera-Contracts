@@ -10,6 +10,7 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     bool public withdrawalsEnabled;
     bool public referralCodeCreationEnabled;
     bool public referralCodeMandatory;
+    bool public useReferralOnlyInDeposits;
 
     uint private counter;
 
@@ -30,6 +31,7 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     event WithdrawalsEnabled(bool enabled);
     event ReferralCodeCreationEnabled(bool enabled);
     event ReferralCodeMandatoryEnabled(bool enabled);
+    event UseReferralOnlyInDepositsEnabled( bool enable );
 
     event ReferralCodeCreated( address user, string code );
     event ReferralCodeUsed( address user, string code );
@@ -69,6 +71,8 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     }
 
     function useReferralCode(string memory code_) public {
+        if (useReferralOnlyInDeposits) revert ReferralCodeCreationDisabled();
+
         useReferralCode ( _msgSender(), code_);
     }
 
@@ -137,14 +141,19 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
         emit ReferralCodeMandatoryEnabled(referralCodeMandatory_);
     }
 
+    function setUseReferralOnlyInDeposits ( bool useReferralOnlyInDeposits_ ) external onlyOwner {
+        useReferralOnlyInDeposits = useReferralOnlyInDeposits_;
+        emit UseReferralOnlyInDepositsEnabled(useReferralOnlyInDeposits_);
+    }
+
     /* INTERNAL FUNCTIONS */
 
-    function useReferralCode ( address receiver, string memory code_) internal {
+    function useReferralCode ( address user, string memory code_) internal {
         if ( bytes(code_).length != 0 ) {
-            if ( bytes(addressToCodeUsed[receiver]).length == 0) {
+            if ( bytes(addressToCodeUsed[user]).length == 0) {
                 if ( referralCodeToOwner[code_] != address(0) ) {
-                    addressToCodeUsed[receiver] = code_;
-                    emit ReferralCodeUsed( receiver, code_ );
+                    addressToCodeUsed[user] = code_;
+                    emit ReferralCodeUsed( user, code_ );
                 } else {
                     revert ReferralCodeDoesNotExist();
                 }
