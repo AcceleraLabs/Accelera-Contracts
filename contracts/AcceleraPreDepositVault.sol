@@ -11,6 +11,7 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     bool public referralCodeCreationEnabled;
     bool public referralCodeMandatory;
     bool public useReferralOnlyInDeposits;
+    uint public minimumBalanceToGenerateCode;
 
     uint private counter;
 
@@ -26,12 +27,14 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     error ReferralCodeDoesNotExist();
     error ReferralCodeAlreadyUsed();
     error AddressAlreadyHasReferralCode();
+    error NotEnoughXUSDEToGenerateCode();
 
     event DepositsEnabled(bool enabled);
     event WithdrawalsEnabled(bool enabled);
     event ReferralCodeCreationEnabled(bool enabled);
     event ReferralCodeMandatoryEnabled(bool enabled);
     event UseReferralOnlyInDepositsEnabled( bool enable );
+    event SetMinimumBalanceToGenerateCode( uint minimum );
 
     event ReferralCodeCreated( address user, string code );
     event ReferralCodeUsed( address user, string code );
@@ -43,6 +46,9 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     {
         depositsEnabled = true;
         withdrawalsEnabled = true;
+
+        referralCodeCreationEnabled = true;
+        useReferralOnlyInDeposits = true;
     }
 
     function depositWithReferral(uint256 assets, address receiver, string memory code_) public returns (uint256) {
@@ -56,6 +62,8 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
 
     function createReferralCode() external {
         if (!referralCodeCreationEnabled) revert ReferralCodeCreationDisabled();
+
+        if ( balanceOf(_msgSender()) < minimumBalanceToGenerateCode ) revert NotEnoughXUSDEToGenerateCode();
 
         address user_ = _msgSender();
         string memory code_ = randomString(6);
@@ -144,6 +152,11 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     function setUseReferralOnlyInDeposits ( bool useReferralOnlyInDeposits_ ) external onlyOwner {
         useReferralOnlyInDeposits = useReferralOnlyInDeposits_;
         emit UseReferralOnlyInDepositsEnabled(useReferralOnlyInDeposits_);
+    }
+
+    function setMinimumBalanceToGenerateCode ( uint minimumBalanceToGenerateCode_ ) external onlyOwner {
+        minimumBalanceToGenerateCode = minimumBalanceToGenerateCode_;
+        emit SetMinimumBalanceToGenerateCode(minimumBalanceToGenerateCode_);
     }
 
     /* INTERNAL FUNCTIONS */
