@@ -28,6 +28,7 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     error ReferralCodeAlreadyUsed();
     error AddressAlreadyHasReferralCode();
     error NotEnoughXUSDEToGenerateCode();
+    error CantReferYourself();
 
     event DepositsEnabled(bool enabled);
     event WithdrawalsEnabled(bool enabled);
@@ -165,6 +166,7 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
         if ( bytes(code_).length != 0 ) {
             if ( bytes(addressToCodeUsed[user]).length == 0) {
                 if ( referralCodeToOwner[code_] != address(0) ) {
+                    if ( referralCodeToOwner[code_] == user ) revert CantReferYourself();
                     addressToCodeUsed[user] = code_;
                     emit ReferralCodeUsed( user, code_ );
                 } else {

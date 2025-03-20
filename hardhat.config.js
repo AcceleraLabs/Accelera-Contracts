@@ -5,6 +5,7 @@ require('dotenv').config()
 
 const ACCELERA_DEV_PK = process.env.ACCELERA_DEV_PK
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
+const BLAST_API_KEY = process.env.BLAST_API_KEY
 const LOCAL_TEST_PK_0 = process.env.LOCAL_TEST_PK_0
 const LOCAL_TEST_PK_1 = process.env.LOCAL_TEST_PK_1
 const ACCELERA_DEV_TEST_PK = process.env.ACCELERA_DEV_TEST_PK
@@ -47,6 +48,7 @@ module.exports = {
   etherscan: {
     apiKey: {
       mainnet: ETHERSCAN_API_KEY,
+      blast_sepolia: BLAST_API_KEY,
     },
     customChains: [
       {
@@ -56,6 +58,15 @@ module.exports = {
           apiURL: `https://api.etherscan.io/api?apiKey=${ETHERSCAN_API_KEY}`,
           browserURL: "https://etherscan.io/"
         }
+      },
+      {
+        network:"blast_sepolia",
+        chainId: 168587773,
+        urls: {
+          apiURL: `https://api-sepolia.blastscan.io/api?apiKey=${BLAST_API_KEY}`,
+          browserURL: "https://blastscan.io/"
+        }
+
       },
     ]
   }
