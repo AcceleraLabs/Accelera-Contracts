@@ -8,6 +8,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@nomicfoundation/hardhat-verify": "^2.0.13",
     "hardhat": "^2.22.19"
   },
   "dependencies": {
