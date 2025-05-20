@@ -6,9 +6,6 @@ require('dotenv').config()
 
 const ACCELERA_DEV_PK = process.env.ACCELERA_DEV_PK
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
-const BLAST_API_KEY = process.env.BLAST_API_KEY
-const LOCAL_TEST_PK_0 = process.env.LOCAL_TEST_PK_0
-const LOCAL_TEST_PK_1 = process.env.LOCAL_TEST_PK_1
 const ACCELERA_DEV_TEST_PK = process.env.ACCELERA_DEV_TEST_PK
 
 module.exports = {
@@ -26,24 +23,14 @@ module.exports = {
     ]
   },
 
-  defaultNetwork: "blast_sepolia",
+  defaultNetwork: "mainnet",
 
   networks : {
     mainnet: {
       url: 'https://eth.drpc.org',
       chainId : 1,
       accounts : [ACCELERA_DEV_PK]
-    },
-    local: {
-      url: 'http://127.0.0.1:8545/',
-      chainId : 31337,
-      accounts : [LOCAL_TEST_PK_0,LOCAL_TEST_PK_1]
-    },
-    blast_sepolia: {
-      url: 'https://endpoints.omniatech.io/v1/blast/sepolia/public',
-      chainId : 168587773 ,
-      accounts : [ACCELERA_DEV_TEST_PK]
-    },
+    }
   },
   
   etherscan: {
@@ -59,15 +46,6 @@ module.exports = {
           apiURL: `https://api.etherscan.io/api?apiKey=${ETHERSCAN_API_KEY}`,
           browserURL: "https://etherscan.io/"
         }
-      },
-      {
-        network:"blast_sepolia",
-        chainId: 168587773,
-        urls: {
-          apiURL: `https://api-sepolia.blastscan.io/api?apiKey=${BLAST_API_KEY}`,
-          browserURL: "https://blastscan.io/"
-        }
-
       },
     ]
   }

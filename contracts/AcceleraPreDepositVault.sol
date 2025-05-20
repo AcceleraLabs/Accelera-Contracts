@@ -38,6 +38,7 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     event SetMinimumBalanceToGenerateCode( uint minimum );
 
     event ReferralCodeCreated( address user, string code );
+    event ReferralCodeVIP( address user, string code, bool isVip );
     event ReferralCodeUsed( address user, string code );
 
     constructor(address initialOwner_, IERC20 asset_, string memory name_, string memory symbol_)
@@ -47,9 +48,10 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
     {
         depositsEnabled = true;
         withdrawalsEnabled = true;
-
+        referralCodeMandatory = false;
         referralCodeCreationEnabled = true;
         useReferralOnlyInDeposits = true;
+        minimumBalanceToGenerateCode = 1000*10**18;
     }
 
     function depositWithReferral(uint256 assets, address receiver, string memory code_) public returns (uint256) {
@@ -128,6 +130,11 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
         ownerToReferralCode[user_] = code_;
 
         emit ReferralCodeCreated(user_, code_);
+    }
+
+    function setVipReferral(string memory code_, bool isVip_) external onlyOwner {
+        address user_ = referralCodeToOwner[code_];
+        emit ReferralCodeVIP(user_, code_, isVip_);
     }
 
     function setDepositsEnabled(bool depositsEnabled_) external onlyOwner {
