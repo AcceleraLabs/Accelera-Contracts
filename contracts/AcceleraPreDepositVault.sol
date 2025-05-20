@@ -134,6 +134,7 @@ contract AcceleraPreDepositVault is ERC4626, Ownable {
 
     function setVipReferral(string memory code_, bool isVip_) external onlyOwner {
         address user_ = referralCodeToOwner[code_];
+        // only for indexing purposes
         emit ReferralCodeVIP(user_, code_, isVip_);
     }
 
